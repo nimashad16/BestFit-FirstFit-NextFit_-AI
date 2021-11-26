@@ -68,7 +68,7 @@ int main(int argc, char **argv) {
     int storage = 0;
     int numSteps = 0;
 
-    for (int a = 0; a < 100; a++) {
+    for (int a = 0; a < 10; a++) {
         fscanf(fp, "%s %s %d", tasks, process, &storage);
         taskArray[a].task = tasks;
         taskArray[a].processID = process;
