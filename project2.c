@@ -61,7 +61,8 @@ int main(int argc, char **argv) {
     fscanf(fp, "%s", &initialR);
     fscanf(fp, "%d", &size);               //This will store the number
 
-    ProcessInfo *taskArray = malloc(sizeof(struct ProcessInfo));
+    int ran = 12;
+    ProcessInfo *taskArray = malloc(sizeof(ran));
 
     char tasks[254];
     char process[254];
