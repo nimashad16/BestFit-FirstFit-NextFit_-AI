@@ -1,158 +1,172 @@
 //  main.c
-//  Project1
-//
-//  Created by Nima $wagaram on 11/1/21.
+//  Project2
 //  Copyright © 2021 Nima $wagaram. All rights reserved.
-//
+
 #include <stdio.h>
 #include <stdlib.h>
-#include <string.h>
-typedef struct Process{
-    int PID;
-    int burstTime;
-    int priority;
-}Process;
+
+typedef struct mem_block{
+    struct mem_block* prev;
+    struct mem_block* next;
+    int end;                 //The N variable which stores the size
+    //bool is_Free;
+    int ID; //Can be a string as well
+}mem_Block;
+
 
 typedef struct ProcessInfo{
-    int PID;
-    int totalBurstTime;
-    int waitingTime;
-    int responseTime;
-    int pCtr;
+    char* task;
+    char* processID;
+    int values;
 }ProcessInfo;
 
-int calcContextSwitches(struct Process *processQueue, int numProcesses){
-    //int prevID = 0;
-    int totalCS = 0;
-    for (int i = 0; i < numProcesses - 1; i++){
-        if (processQueue[i+1].PID != processQueue[i].PID){
-            totalCS += 1;
-        }
+typedef struct Process{
+   int orderValues;
+   char *processNum;
+}Process;
+
+
+int Request(int taskArrayValue, int total){
+
+
+
+
+
+    /*if(){
+        printf("%s","ALLOCATED A x");       //Skeleton code
     }
-    return totalCS;
+    else{
+        printf("%s","FAILED REQUEST A n");
+    }
+     */
+}
+
+/*void Release(){
+    if(){
+        printf("%s","FREE A n x");       //Skeleton code
+    }
+    else{
+        printf("%s","FAILED RELEASE A n");
+    }
+}
+ */
+
+void ListAssigned(){
+
+}
+void ListAvailable(){
+
+}
+
+void Find(){
+
+}
+
+void remove_element(struct Process *array, int index, int numSteps)
+{
+    int i;
+    for(i = index; i < numSteps - 1; i++) {
+        array[i] = array[i + 1];
+    }
 }
 
 
-int getTimeInfos(struct Process *processQueue,struct ProcessInfo *array, int numProcesses, int numPIDs){
+//method for best Fit
+void BestFit(int initialR, int size, struct ProcessInfo *taskArray, numSteps) {
 
-    int totalContextSwitches;
-    int nonVoluntarySwitches;
-    int x = 0;
-    int y;
-    int pFlag = 0;
-    int volSwitches = 0;
-    while(x < numPIDs){
-        y = 0;
-        pFlag = 0;
-        while(y < numProcesses && array[x].pCtr > 0){
-            if (processQueue[y].PID == array[x].PID){
-                pFlag =1;
-                array[x].pCtr -= 1;
-            }
-            else{
-                array[x].waitingTime += processQueue[y].burstTime;
-            }
-            if (y != numProcesses - 1 && array[x].pCtr == 0){
-                volSwitches += 1;
-            }
-            if (pFlag != 1){
-                array[x].responseTime += processQueue[y].burstTime;
-            }
-            y++;
-        }
-        /*printf("%d\n",array[x].PID);
-        printf("%d\n",array[x].responseTime);
-        printf("%d\n",array[x].waitingTime);*/
-        x++;
-    }
-    totalContextSwitches = calcContextSwitches(processQueue, numProcesses);
-    nonVoluntarySwitches = totalContextSwitches - volSwitches;
-
-    if(nonVoluntarySwitches < 0){
-        nonVoluntarySwitches =0;
-    }
-    int allBurstTimes = 0;
-    double avgThroughput;
-    double avgTurnAroundTime = 0.0;
-    double avgWaitingTime = 0.0;
-    double rTime = 0.0;
-
-    for(int a =0; a < numPIDs;a++){
-
-        allBurstTimes += array[a].totalBurstTime;
-        // printf("%0.2d\n",array[a].totalBurstTime);                        //Throughput
-
-        avgTurnAroundTime += array[a].waitingTime + array[a].totalBurstTime;
-        // printf("%0.2d\n",array[a].waitingTime + array[a].totalBurstTime);                        //Throughput
-
-        avgWaitingTime += array[a].waitingTime;
-        //printf("%0.2d\n", array[a].waitingTime);                          //WaitingTime
-
-        rTime += array[a].responseTime;
-        //printf("%0.2d\n", array[a].responseTime);                          //rTime
-
-    }
-
-    avgThroughput = (float)numPIDs / (float)allBurstTimes;
-
-    avgTurnAroundTime /= numPIDs;
-
-    avgWaitingTime /= numPIDs;
-
-    rTime /= numPIDs;
-
-    printf("%d\n", numPIDs);
-    printf("%d\n", nonVoluntarySwitches);                               //nonVoluntary
-
-    printf("%0.02f\n",100.00);                                  //CPU Utilization
-
-    printf("%0.02f\n",avgThroughput);                        //Throughput
-
-    printf("%0.02f\n",avgTurnAroundTime);                         //TurnAround
-
-    printf("%0.02f\n", avgWaitingTime);                          //WaitingTime
-
-    printf("%0.02f\n", rTime);                          //rTime
-
-    return 0;
-    //nonVoluntarySwitches,avgThroughput,avgTurnAroundTime,avgWaitingTime,rTime;
 }
 
+//method for First fit
+void FirstFit(int initialR, int size, struct ProcessInfo *taskArray, numSteps){
+//Create another list
+    Process *newArray = malloc(sizeof(struct Process));
+
+    int a,b,result,resultN;
+
+    for (a = 0; a < numSteps; a++) {
+        result = strcmp(taskArray[0].task, "REQUEST");
+        if (result == 0) {
+            newArray[a].processNum = taskArray[a].processID;
+            newArray[a].orderValues = taskArray[a].values;
+        }
+        for(b =0; b<numSteps;b++) {
+            result = strcmp(taskArray[b].task, "RELEASE");
+            if (resultN == 0) {
+                remove_element(newArray[b].orderValues, a, numSteps);
+                Process *tmp = realloc(newArray[b].orderValues, (size - 1) * sizeof(Process));
+                size = size - 1;
+                newArray[b].orderValues = tmp;
+            }
+        }
+    }
+}
+
+//method for nextfit
+void NextFit(int initialR, int size, struct ProcessInfo *taskArray, numSteps){
+}
+//method for worst fit
+void WorstFit(int initialR, int size, struct ProcessInfo *taskArray, numSteps){
+}
 
 int main(int argc, char **argv) {
-    int start;
-    int numPIDs;
-    int numProcesses;
-    FILE* fp;
-    fp = fopen(argv[1],"r");
-    fscanf(fp,"%d", &start);
-    fscanf(fp,"%d", &numPIDs);
-    fscanf(fp,"%d", &numProcesses);
+    FILE *fp;
+    char initialR[254];
+    int size;
 
-    ProcessInfo* arrayStore = calloc(numPIDs,sizeof(struct ProcessInfo));
-    Process* processQueue = calloc(numProcesses,sizeof(struct Process));
+    fp = fopen(argv[1], "r");
+    fscanf(fp, "%s", &initialR);
+    fscanf(fp, "%d", &size);               //This will store the number
 
-    for (int i = 0; i < numPIDs; i++){
-        arrayStore[i].totalBurstTime = 0;
-        arrayStore[i].waitingTime = 0;
-        arrayStore[i].responseTime = 0;
-        arrayStore[i].pCtr = 0;
-    }
-    //printf("%d\n",numPIDs);
+    ProcessInfo *taskArray = malloc(sizeof(struct ProcessInfo));
+
+    char tasks[254];
+    char process[254];
+    int storage;
+    int numSteps = 0;
     int a;
-    int PID,burstTime,priority;
-    for(a = 0;  a < numProcesses; a++ ){
-        fscanf(fp,"%d %d %d", &PID, &burstTime,&priority);
-        processQueue[a].PID = PID;
-        processQueue[a].burstTime = burstTime;
-        processQueue[a].priority = priority;
-        arrayStore[PID-1].PID = PID;
-        arrayStore[PID-1].totalBurstTime += burstTime;
-        arrayStore[PID-1].pCtr += 1;
+    int request = 0;
+    int release;
+    int list;
+
+    for ( a = 0; a < 13; a++) {
+        fscanf(fp, "%s %s %d", tasks, process, &storage);
+        request = strcmp(tasks, "REQUEST");
+        release = strcmp(tasks, "RELEASE");
+        list = strcmp(tasks, "LIST");
+
+        if(request ==0 || release == 0 || list == 0){
+        taskArray[a].task = tasks;
+        taskArray[a].processID = process;
+        taskArray[a].values = storage;
+        numSteps++;
+        }
     }
-//    for (int i = 0; i < numProcesses; i++){
-//        printf("%d %d %d",processQueue[i].PID,processQueue[i].burstTime,processQueue[i].priority);
-//    }
-    getTimeInfos(processQueue,arrayStore,numProcesses,numPIDs);
+    taskArray[a].values = storage;
+
+    printf("%s\n", "Allocated OS 0");
+    printf("%s", "(");
+    printf("%d", size);
+    printf("%s", ", ");
+    printf("%d",taskArray[0].values);
+    printf("%s\n", ")");
+
+    int result;
+    result = strcmp(initialR,"BESTFIT");
+
+    if (result == 0) {
+   // BestFit(initialR, size, taskArray,numSteps);
+    }
+     result = strcmp(initialR,"NEXTFIT");
+    if(result == 0) {
+    //    NextFit(initialR, size, taskArray,numSteps);
+    }
+    result = strcmp(initialR,"FIRSTFIT");
+    if(result == 0) {
+        FirstFit(initialR, size, taskArray,numSteps);
+    }
+    result = strcmp(initialR,"WORSTFIT");
+    if(result == 0) {
+     //   WorstFit(initialR, size, taskArray,numSteps);
+    }
     return 0;
 }
