@@ -5,14 +5,14 @@
 
 #define TOTALSTEPS 50
 
-/* constants defined for each possible command */
+
 #define REQUEST 0
 #define RELEASE 1
 #define LIST_AVAILABLE 2
 #define LIST_ASSIGNED 3
 #define FIND 4
 
-/* algorithms */
+
 #define FIRSTFIT 0
 #define BESTFIT 1
 #define WORSTFIT 2
@@ -41,12 +41,12 @@ typedef struct
     int next;
 } Memory;
 
-/* uses fscanf() with format "%s " to get each word in file, then creates the corresponding command object and adds to array */
+
 void Parsing(Task *taskArray,char *file)
 {
     int counter = 0;
     char task[10];
-    char nullWord[10] = "NULL";  // for commands that dont require a process name (to avoid uninitilized garbage ╨@)
+    char nullWord[10] = "NULL";  
     int a;
 
     FILE *input = fopen(file, "r");
@@ -126,7 +126,6 @@ void removeIndex(Memory *memory, int empty)
     fillBlocks(memory);
 }
 
-/* returns the corresponding int for the given algorithm string */
 int stringConverter(char *taskID)
 {
     if(strcmp(taskID, "FIRSTFIT") == 0){
@@ -151,8 +150,6 @@ void fillBlocks(Memory *memory) {
         }
     }
 }
-
-/* returns a new hole with given parameters */
 Process newBlock(int spot,int memory) {
     Process block;
     memcpy(block.taskID, "BLOCK", sizeof(block.taskID));
@@ -162,14 +159,12 @@ Process newBlock(int spot,int memory) {
     return block;
 }
 
-/* bubble sort helper function */
 void swap(Process *first, Process *second) {
     Process temp = *first;
     *first = *second;
     *second = temp;
 }
 
-/* standard bubble sort */
 void sort(Memory *memory) {
     int a,x;
     for(a = 0; a < memory->next-1; a++){
@@ -181,7 +176,6 @@ void sort(Memory *memory) {
     }
 }
 
-/* creates new process from block and appends new block to memory */
 void blockToProcess(char newProcess[], int memoryNeeded, Memory *memory, int i)
 {
     int diffMemory;
@@ -194,13 +188,12 @@ void blockToProcess(char newProcess[], int memoryNeeded, Memory *memory, int i)
     {
         return;
     }
-    // if block had left over space, make new block with memDifference at position (old position + memory taken up)
+   
     memory->tasks[memory->next] = newBlock(memory->tasks[i].counter + memoryNeeded,diffMemory);
     memory->next++;
     memory->freeMemory = memory->freeMemory - memoryNeeded;
 }
 
-/* finds first hole that will fit process */
 void firstfit(int memoryNeeded, Memory *memory, char taskID[])
 {
     int x;
@@ -219,14 +212,15 @@ void firstfit(int memoryNeeded, Memory *memory, char taskID[])
 
     printf("FAIL REQUEST %s %d\n", taskID, memoryNeeded);
 }
-/* finds smallest block that will fit process */
+
+
 void bestfit(int memoryNeeded,char taskID[], Memory *memory)
 {
     int smallestBlock;
     int firstCounter;
     int x;
 
-    smallestBlock = memory->memBlock+1; // largest possible size
+    smallestBlock = memory->memBlock+1; 
     firstCounter = -1;
 
     for(x = 0; x < memory->next; x++)
@@ -252,7 +246,6 @@ void bestfit(int memoryNeeded,char taskID[], Memory *memory)
     return;
 }
 
-/* finds largest hole that will fit process */
 void worstfit( int memoryNeeded, char taskID[],Memory *memory)
 {
     int LastIndex = -1;
@@ -282,7 +275,7 @@ void worstfit( int memoryNeeded, char taskID[],Memory *memory)
     return;
 }
 
-/* calls the correct request function based on the given algorithm */
+
 void request(int memoryNeeded,char taskID[],  Memory *memory)
 {
     if(memory->freeMemory < memoryNeeded)
@@ -305,7 +298,7 @@ void request(int memoryNeeded,char taskID[],  Memory *memory)
     }
 }
 
-/* turns process into a hole */
+
 void release( Memory *memory,char taskID[])
 {
     for(int i = 0; i < memory->next; i++)
@@ -321,7 +314,7 @@ void release( Memory *memory,char taskID[])
     printf("FAIL RELEASE %s\n", taskID);
 }
 
-/* lists all Blocks size and adress */
+
 void listAvailable(Memory *memory)
 {
     int counter = 0;
@@ -342,7 +335,6 @@ void listAvailable(Memory *memory)
     }
 }
 
-/* list all processes currently in memory */
 void listAssigned(Memory *memory)
 {
     int counter = 0;
@@ -367,7 +359,7 @@ void listAssigned(Memory *memory)
     }
 }
 
-/* prints specific process, pretty sure this is never called */
+
 void find( Memory *memory,char taskID[])
 {
     int x;
@@ -383,7 +375,7 @@ void find( Memory *memory,char taskID[])
     printf("FAULT\n");
 }
 
-/* calls corresponding function based on the command */
+
 void run( Memory *memory,Task process)
 {
     switch(process.process)
@@ -411,7 +403,6 @@ void run( Memory *memory,Task process)
     fillBlocks(memory);
 }
 
-/* creates a hole process at the start of memory */
 void initialMemory(Memory *memory)
 {
     memory->tasks[0] = newBlock(0,memory->memBlock);
@@ -420,7 +411,7 @@ void initialMemory(Memory *memory)
     memory->availAddress = 0;
 }
 
-/* uses fscanf() to find the total number of commands (ignoring comments) so commandArray doesnt have garbage values */
+
 int getNumProcesses(char *fileName)
 {
     int processCount = 0;
@@ -456,7 +447,7 @@ int main(int argc, char **argv)
 
     if (argc != 4)
     {
-        printf("Not enough arguments.\n./project2 <algorithm> <total memory> <script>\n");
+        printf("Not enough arguments.\n");
     }
     memory.fit = stringConverter(argv[1]);
     memory.memBlock = (int)strtol(argv[2], (char **)NULL, 10);
