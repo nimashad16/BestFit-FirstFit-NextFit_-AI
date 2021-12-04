@@ -68,8 +68,8 @@ void Parsing(Task *taskArray,char *file)
             taskArray[counter].process = RELEASE;
             fscanf(input, "%s ", task);
             for(a = 0; a < 10; a++) {
-                taskArray[counter].memoryNeeded = 0;
                 taskArray[counter].taskID[a] = task[a];
+                taskArray[counter].memoryNeeded = 0;
                 counter++;
             }
         }
