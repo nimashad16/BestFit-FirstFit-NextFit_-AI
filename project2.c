@@ -354,18 +354,17 @@ void release(char taskID[], Memory *mem)
 /* lists all holes size and adress */
 void listAvailable(Memory *mem)
 {
-    int counter = 0;
-    int x;
-    for(x= 0; x < mem->next; x++)
+    int available = 0;
+    for(int i = 0; i < mem->next; i++)
     {
-        if(strcmp(mem->processes[x].taskName, "HOLE") == 0)
+        if(strcmp(mem->processes[i].taskName, "HOLE") == 0)
         {
-            printf("(%d, %d) ", mem->processes[x].allocatedMemory, mem->processes[x].index);
-            counter++;
+            printf("(%d, %d) ", mem->processes[i].allocatedMemory, mem->processes[i].index);
+            available++;
         }
     }
 
-    if(counter > 0)
+    if(available > 0)
     {
         printf("\n");
         return;
@@ -404,14 +403,13 @@ void listAssigned(Memory *mem)
 }
 
 
-void Find(char taskID[], Memory *mem)
+void find(char taskID[], Memory *mem)
 {
-    int x;
-    for( x = 0; x < mem->next; x++)
+    for(int i = 0; i < mem->next; i++)
     {
-        if(strcmp(mem->processes[x].taskName, taskID) == 0)
+        if(strcmp(mem->processes[i].taskName, taskID) == 0)
         {
-            printf("(%s, %d, %d)\n", taskID, mem->processes[x].allocatedMemory, mem->processes[x].index);
+            printf("(%s, %d, %d)\n", taskID, mem->processes[i].allocatedMemory, mem->processes[i].index);
             return;
         }
     }
@@ -436,7 +434,7 @@ void run(Task task, Memory *mem)
             listAssigned(mem);
             break;
         case FIND:
-            Find(task.taskName, mem);
+            find(task.taskName, mem);
             break;
         default:
             printf("BAD COMMAND\n");
@@ -446,7 +444,8 @@ void run(Task task, Memory *mem)
     storeInBlocks(mem);
 }
 
-void createBlockAtStart(Memory *mem)
+/* creates a hole process at the start of memory */
+void initMemory(Memory *mem)
 {
     mem->processes[0] = createBlock(mem->spaceCombined, 0);
     mem->next = 1;
@@ -458,24 +457,24 @@ int main(int argc, char **argv)
 {
     if (argc != 4)
     {
-        printf("Not enough arguments");
+        printf("Not enough arguments.\n./project2 <algorithm> <total memory> <script>\n");
     }
 
     Memory mem;
     mem.task = stringToNum(argv[1]);
     mem.spaceCombined = (int)strtol(argv[2], (char **)NULL, 10);
-    createBlockAtStart(&mem);
+    initMemory(&mem);
 
-    char *file = argv[3];
+    char *fileName = argv[3];
 
-    int numTasks = getTaskCount(file);
+    int numOfCommands = getTaskCount(fileName);
 
-    Task taskArray[numTasks];
-    parseCommands(file, taskArray);
+    Task commandArray[numOfCommands];
+    parseCommands(fileName, commandArray);
 
-    for(int i = 0; i < numTasks; i++)
+    for(int i = 0; i < numOfCommands; i++)
     {
-        run(taskArray[i], &mem);
+        run(commandArray[i], &mem);
     }
 
     return 0;
