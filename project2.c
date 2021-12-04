@@ -1,172 +1,449 @@
-//  main.c
-//  Project2
-//  Copyright © 2021 Nima $wagaram. All rights reserved.
-
 #include <stdio.h>
+#include <string.h>
 #include <stdlib.h>
+#include <math.h>
 
-typedef struct mem_block{
-    struct mem_block* prev;
-    struct mem_block* next;
-    int end;                 //The N variable which stores the size
-    //bool is_Free;
-    int ID; //Can be a string as well
-}mem_Block;
+#define TOTALSTEPS 50
 
-
-typedef struct ProcessInfo{
-    char* task;
-    char* processID;
-    int values;
-}ProcessInfo;
-
-typedef struct Process{
-   int orderValues;
-   char *processNum;
-}Process;
+#define REQUEST 0
+#define RELEASE 1
+#define LIST_AVAILABLE 2
+#define LIST_ASSIGNED 3
+#define FIND 4
 
 
-int Request(int taskArrayValue, int total){
+#define FIRSTFIT 0
+#define BESTFIT 1
+#define WORSTFIT 2
 
-
-
-
-
-    /*if(){
-        printf("%s","ALLOCATED A x");       //Skeleton code
-    }
-    else{
-        printf("%s","FAILED REQUEST A n");
-    }
-     */
-}
-
-/*void Release(){
-    if(){
-        printf("%s","FREE A n x");       //Skeleton code
-    }
-    else{
-        printf("%s","FAILED RELEASE A n");
-    }
-}
- */
-
-void ListAssigned(){
-
-}
-void ListAvailable(){
-
-}
-
-void Find(){
-
-}
-
-void remove_element(struct Process *array, int index, int numSteps)
+typedef struct
 {
-    int i;
-    for(i = index; i < numSteps - 1; i++) {
-        array[i] = array[i + 1];
+    char taskID[10];
+    int memoryNeeded;
+    int process;
+
+} Task;
+typedef struct
+{
+    char taskID[10];
+    int counter;
+    int allocatedMemory;
+} Process;
+
+typedef struct
+{
+    Process tasks[TOTALSTEPS];
+    int memBlock;
+    int freeMemory;
+    int availAddress;
+    int fit;
+    int next;
+} Memory;
+
+
+void Parsing(Task *taskArray,char *file)
+{
+    int counter = 0;
+    char task[10];
+    char nullWord[10] = "NULL";  
+    int a;
+
+    FILE *input = fopen(file, "r");
+
+    while(fscanf(input, "%s", task) != EOF) {
+
+        if(strcmp(task, "REQUEST") == 0) {
+            taskArray[counter].process = REQUEST;
+            fscanf(input, "%s ", task);
+
+            for(int a = 0; a < 10; a++)
+                taskArray[counter].taskID[a] = task[a];
+            fscanf(input, "%s ", task);
+            taskArray[counter].memoryNeeded = (int)strtol(task, (char **)NULL, 10);
+            counter++;
+        }
+
+        else if(strcmp(task, "RELEASE") == 0) {
+            taskArray[counter].process = RELEASE;
+            fscanf(input, "%s ", task);
+            for(a = 0; a < 10; a++) {
+                taskArray[counter].memoryNeeded = 0;
+                taskArray[counter].taskID[a] = task[a];
+                counter++;
+            }
+        }
+
+        else if(strcmp(task, "FIND") == 0) {
+            taskArray[counter].process = FIND;
+            fscanf(input, "%s ", task);
+            for(a = 0; a < 10; a++) {
+                taskArray[counter].memoryNeeded = 0;
+                taskArray[counter].taskID[a] = task[a];
+                counter++;
+            }
+        }
+
+        else if(strcmp(task, "LIST") == 0) {
+            fscanf(input, "%s ", task);
+
+            if(strcmp(task, "ASSIGNED") == 0) {
+                taskArray[counter].process = LIST_ASSIGNED;
+                for(int i = 0; i < 10; i++)
+                    taskArray[counter].taskID[i] = nullWord[i];
+                taskArray[counter].memoryNeeded = 0;
+            }
+            else {
+                taskArray[counter].process = LIST_AVAILABLE;
+                for(int i = 0; i < 10; i++)
+                    taskArray[counter].taskID[i] = nullWord[i];
+                taskArray[counter].memoryNeeded = 0;
+            }
+            counter++;
+        }
+    }
+    fclose(input);
+}
+
+void fillBlocks(Memory *memory);
+
+void removeIndex(Memory *memory, int empty)
+{
+    Process newTasks[TOTALSTEPS];
+    int count = 0;
+    int a;
+    for(a = 0; a < memory->next; a++)
+    {
+        if(a != empty)
+        {
+            newTasks[count] = memory->tasks[a];
+            count++;
+        }
+    }
+
+    memcpy(memory->tasks, &newTasks, sizeof(memory->tasks));
+    memory->next = count;
+    fillBlocks(memory);
+}
+
+
+int stringConverter(char *taskID)
+{
+    if(strcmp(taskID, "FIRSTFIT") == 0)
+    {
+        return 0;
+    }
+    else if(strcmp(taskID, "BESTFIT") == 0)
+    {
+        return 1;
+    }
+    else if(strcmp(taskID, "WORSTFIT") == 0)
+    {
+        return 2;
+    }
+    else{
+        return -1;
+    }
+}
+void fillBlocks(Memory *memory) {
+    int x;
+    for(int x = 0; x < memory->next; x++)
+    {
+        if(strcmp(memory->tasks[x+1].taskID, "BLOCK") == 0 && strcmp(memory->tasks[x].taskID, "BLOCK") == 0)
+        {
+            memory->tasks[x].allocatedMemory = memory->tasks[x].allocatedMemory + memory->tasks[x+1].allocatedMemory;
+            removeIndex(memory, x+1);
+        }
     }
 }
 
 
-//method for best Fit
-void BestFit(int initialR, int size, struct ProcessInfo *taskArray, numSteps) {
+Process newBlock(int spot,int memory)
+{
+    Process block;
+    memcpy(block.taskID, "BLOCK", sizeof(block.taskID));
+    block.allocatedMemory = memory;
+    block.counter = spot;
 
+    return block;
 }
 
-//method for First fit
-void FirstFit(int initialR, int size, struct ProcessInfo *taskArray, numSteps){
-//Create another list
-    Process *newArray = malloc(sizeof(struct Process));
+void swap(Process *first, Process *second)
+{
+    Process temp = *first;
+    *first = *second;
+    *second = temp;
+}
 
-    int a,b,result,resultN;
 
-    for (a = 0; a < numSteps; a++) {
-        result = strcmp(taskArray[0].task, "REQUEST");
-        if (result == 0) {
-            newArray[a].processNum = taskArray[a].processID;
-            newArray[a].orderValues = taskArray[a].values;
-        }
-        for(b =0; b<numSteps;b++) {
-            result = strcmp(taskArray[b].task, "RELEASE");
-            if (resultN == 0) {
-                remove_element(newArray[b].orderValues, a, numSteps);
-                Process *tmp = realloc(newArray[b].orderValues, (size - 1) * sizeof(Process));
-                size = size - 1;
-                newArray[b].orderValues = tmp;
+void sort(Memory *memory) {
+    int a,x;
+
+    for(a = 0; a < memory->next-1; a++)
+    {
+        for( x = 0; x < memory->next - a -1; x++)
+        {
+            if(memory->tasks[x].counter > memory->tasks[x+1].counter)
+            {
+                swap(&memory->tasks[x], &memory->tasks[x+1]);
             }
         }
     }
 }
 
-//method for nextfit
-void NextFit(int initialR, int size, struct ProcessInfo *taskArray, numSteps){
+
+void blockToProcess(char newProcess[], int memoryNeeded, Memory *memory, int i)
+{
+    int diffMemory;
+     diffMemory = memory->tasks[i].allocatedMemory - memoryNeeded;
+
+    memcpy(memory->tasks[i].taskID, newProcess, sizeof(memory->tasks[i].taskID));
+    memory->tasks[i].allocatedMemory = memoryNeeded;
+
+    if(diffMemory == 0)
+    {
+        return;
+    }
+    memory->tasks[memory->next] = newBlock(memory->tasks[i].counter + memoryNeeded,diffMemory);
+    memory->next++;
+    memory->freeMemory = memory->freeMemory - memoryNeeded;
 }
-//method for worst fit
-void WorstFit(int initialR, int size, struct ProcessInfo *taskArray, numSteps){
-}
 
-int main(int argc, char **argv) {
-    FILE *fp;
-    char initialR[254];
-    int size;
 
-    fp = fopen(argv[1], "r");
-    fscanf(fp, "%s", &initialR);
-    fscanf(fp, "%d", &size);               //This will store the number
-
-    ProcessInfo *taskArray = malloc(sizeof(struct ProcessInfo));
-
-    char tasks[254];
-    char process[254];
-    int storage;
-    int numSteps = 0;
-    int a;
-    int request = 0;
-    int release;
-    int list;
-
-    for ( a = 0; a < 13; a++) {
-        fscanf(fp, "%s %s %d", tasks, process, &storage);
-        request = strcmp(tasks, "REQUEST");
-        release = strcmp(tasks, "RELEASE");
-        list = strcmp(tasks, "LIST");
-
-        if(request ==0 || release == 0 || list == 0){
-        taskArray[a].task = tasks;
-        taskArray[a].processID = process;
-        taskArray[a].values = storage;
-        numSteps++;
+void firstfit(int memoryNeeded, Memory *memory, char taskID[])
+{
+    int x;
+    for(x = 0; x < memory->next; x++)
+    {
+        if(strcmp(memory->tasks[x].taskID, "BLOCK") == 0)
+        {
+            if(memory->tasks[x].allocatedMemory >= memoryNeeded)
+            {
+                blockToProcess(taskID, memoryNeeded, memory, x);
+                printf("ALLOCATED %s %d\n", taskID, memory->tasks[x].counter);
+                return;
+            }
         }
     }
-    taskArray[a].values = storage;
 
-    printf("%s\n", "Allocated OS 0");
-    printf("%s", "(");
-    printf("%d", size);
-    printf("%s", ", ");
-    printf("%d",taskArray[0].values);
-    printf("%s\n", ")");
+    printf("FAIL REQUEST %s %d\n", taskID, memoryNeeded);
+}
 
-    int result;
-    result = strcmp(initialR,"BESTFIT");
+void bestfit(int memoryNeeded,char taskID[], Memory *memory)
+{
+}
 
-    if (result == 0) {
-   // BestFit(initialR, size, taskArray,numSteps);
+/* finds largest hole that will fit process */
+void worstfit( int memoryNeeded, char taskID[],Memory *memory)
+{
+    int largestSize = -1;
+    int largestIndex = -1;
+
+    for(int i = 0; i < memory->next; i++)
+    {
+        if(strcmp(memory->tasks[i].taskID, "BLOCK") == 0)
+        {
+            if((memory->tasks[i].allocatedMemory >= memoryNeeded) && (memory->tasks[i].allocatedMemory > largestSize))
+            {
+                largestSize = memory->tasks[i].allocatedMemory;
+                largestIndex = i;
+            }
+        }
     }
-     result = strcmp(initialR,"NEXTFIT");
-    if(result == 0) {
-    //    NextFit(initialR, size, taskArray,numSteps);
+
+    if(largestIndex > -1)
+    {
+        blockToProcess(taskID, memoryNeeded, memory, largestIndex);
+        printf("ALLOCATED %s %d\n", taskID, memory->tasks[largestIndex].counter);
+        return;
     }
-    result = strcmp(initialR,"FIRSTFIT");
-    if(result == 0) {
-        FirstFit(initialR, size, taskArray,numSteps);
+
+    printf("FAIL REQUEST %s %d\n", taskID, memoryNeeded);
+    return;
+}
+
+void request(int memoryNeeded,char taskID[],  Memory *memory)
+{
+    if(memory->freeMemory < memoryNeeded)
+    {
+        printf("FAIL REQUEST %s %d\n", taskID, memoryNeeded);
+        return;
     }
-    result = strcmp(initialR,"WORSTFIT");
-    if(result == 0) {
-     //   WorstFit(initialR, size, taskArray,numSteps);
+
+    switch(memory->fit)
+    {
+        case FIRSTFIT:
+            firstfit(memoryNeeded, memory,taskID);
+            break;
+        case BESTFIT:
+            bestfit(memoryNeeded,taskID,memory);
+            break;
+        case WORSTFIT:
+            worstfit(memoryNeeded, taskID, memory);
+            break;
+    }
+}
+
+void release( Memory *memory,char taskID[])
+{
+    for(int i = 0; i < memory->next; i++)
+    {
+        if(strcmp(memory->tasks[i].taskID, taskID) == 0)
+        {
+            memcpy(memory->tasks[i].taskID, "BLOCK", sizeof(memory->tasks[i].taskID));
+            memory->freeMemory = memory->freeMemory + memory->tasks[i].allocatedMemory;
+            printf("FREE %s %d %d\n", taskID, memory->tasks[i].allocatedMemory, memory->tasks[i].counter);
+            return;
+        }
+    }
+    printf("FAIL RELEASE %s\n", taskID);
+}
+
+void listAvailable(Memory *memory)
+{
+    int available = 0;
+    for(int i = 0; i < memory->next; i++)
+    {
+        if(strcmp(memory->tasks[i].taskID, "BLOCK") == 0)
+        {
+            printf("(%d, %d) ", memory->tasks[i].allocatedMemory, memory->tasks[i].counter);
+            available++;
+        }
+    }
+
+    if(available > 0)
+    {
+        printf("\n");
+
+    }
+    else
+    {
+        printf("FULL\n");
+
+    }
+}
+
+void listAssigned(Memory *memory)
+{
+    int counter = 0;
+    for(int i = 0; i < memory->next; i++)
+    {
+        if(!(strcmp(memory->tasks[i].taskID, "BLOCK") == 0))
+        {
+            printf("(%s, %d, %d) ", memory->tasks[i].taskID, memory->tasks[i].allocatedMemory, memory->tasks[i].counter);
+            counter++;
+        }
+    }
+
+    if(counter > 0)
+    {
+        printf("\n");
+    }
+    else
+    {
+        printf("NONE\n");
+    }
+}
+
+void find( Memory *memory,char taskID[])
+{
+    for(int i = 0; i < memory->next; i++)
+    {
+        if(strcmp(memory->tasks[i].taskID, taskID) == 0)
+        {
+            printf("(%s, %d, %d)\n", taskID, memory->tasks[i].allocatedMemory, memory->tasks[i].counter);
+            return;
+        }
+    }
+    printf("FAULT\n");
+}
+
+void run( Memory *memory,Task process)
+{
+    switch(process.process)
+    {
+        case REQUEST:
+            request(process.memoryNeeded,process.taskID, memory);
+            break;
+        case RELEASE:
+            release(memory,process.taskID);
+            break;
+        case LIST_AVAILABLE:
+            listAvailable(memory);
+            break;
+        case LIST_ASSIGNED:
+            listAssigned(memory);
+            break;
+        case FIND:
+            find(memory, process.taskID);
+            break;
+        default:
+            printf("BAD COMMAND\n");
+            break;
+    }
+    sort(memory);
+    fillBlocks(memory);
+}
+
+void initialMemory(Memory *memory)
+{
+    memory->tasks[0] = newBlock(0,memory->memBlock);
+    memory->next = 1;
+    memory->freeMemory = memory->memBlock;
+    memory->availAddress = 0;
+}
+
+int getNumProcesses(char *fileName)
+{
+    int processCount = 0;
+
+    FILE *file = fopen(fileName, "r");
+    char word[10];
+
+    while(fscanf(file, "%s ", word) != EOF)
+    {
+        if(strcmp(word, "REQUEST") == 0)
+        {
+            processCount++;
+            /* skips next 2 words */
+            fscanf(file, "%s ", word);
+            fscanf(file, "%s ", word);
+        }
+        else if(strcmp(word, "RELEASE") == 0 || strcmp(word, "LIST") == 0 || strcmp(word, "FIND") == 0)
+        {
+            processCount++;
+
+            /* skips next word */
+            fscanf(file, "%s ", word);
+        }
+    }
+
+    fclose(file);
+    return processCount;
+}
+
+int main(int argc, char **argv)
+{
+    Memory memory;
+
+    if (argc != 4)
+    {
+        printf("Not enough arguments.\n./project2 <algorithm> <total memory> <script>\n");
+    }
+    memory.fit = stringConverter(argv[1]);
+    memory.memBlock = (int)strtol(argv[2], (char **)NULL, 10);
+    initialMemory(&memory);
+
+    char *fileName = argv[3];
+
+    int numOfProcesses = getNumProcesses(fileName);
+
+    Task processArray[numOfProcesses];
+    Parsing(processArray,fileName);
+
+    for(int i = 0; i < numOfProcesses; i++)
+    {
+        run(&memory,processArray[i]);
     }
     return 0;
 }
+
