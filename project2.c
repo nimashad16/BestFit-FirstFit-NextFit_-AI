@@ -2,10 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 
-
 #define TOTALSTEPS 50
-
-
 #define REQUEST 0
 #define RELEASE 1
 #define LIST_AVAILABLE 2
@@ -14,7 +11,8 @@
 
 #define BESTFIT 0
 #define FIRSTFIT 1
-#define WORSTFIT 2
+#define NEXTFIT 2
+#define WORSTFIT 3
 
 typedef struct
 {
@@ -134,7 +132,7 @@ int stringConverter(char *taskID)
         return 1;
     }
     else if(strcmp(taskID, "WORSTFIT") == 0){
-        return 2;
+        return 3;
     }
     else{
         return -1;
@@ -459,4 +457,3 @@ int main(int argc, char **argv)
     }
     return 0;
 }
-
