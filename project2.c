@@ -362,7 +362,6 @@ void listAssigned(Memory *mem)
             counter++;
         }
     }
-
     if(counter > 0)
     {
         printf("\n");
@@ -437,7 +436,6 @@ int main(int argc, char **argv)
     Task taskArray[numTasks];
     parsing(fileName, taskArray);
     int x;
-
     for(x = 0; x < numTasks; x++)
     {
         run(taskArray[x], &mem);
