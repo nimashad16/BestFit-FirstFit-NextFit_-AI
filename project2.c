@@ -431,7 +431,7 @@ int main(int argc, char **argv)
 
     char *fileName = argv[3];
     int numTasks;
-    getTaskCount(fileName);
+    numTasks = getTaskCount(fileName);
 
     Task taskArray[numTasks];
     parsing(fileName, taskArray);
